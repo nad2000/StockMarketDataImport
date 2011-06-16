@@ -106,9 +106,8 @@ def loadRawData( fileName):
     """
 TRUNCATE TABLE message;
 
-DROP INDEX message_order_id_base36_idx ON message;
-DROP INDEX message_order_id_idx ON message;
-DROP INDEX message_order_id_idx2 ON message;
+-- DROP INDEX message_order_id_idx ON message;
+-- DROP INDEX message_order_id_idx2 ON message;
 DROP INDEX message_id_idx ON message;
 DROP INDEX message_idx ON message;
 
@@ -120,8 +119,8 @@ LOAD DATA CONCURRENT /* LOCAL */
     INTO TABLE message
     FIELDS TERMINATED BY ','
     -- ENCLOSED BY ''
-    LINES TERMINATED BY '\n'
-    -- LINES TERMINATED BY '\r\n'
+    LINES TERMINATED BY '\\n'
+    -- LINES TERMINATED BY '\\r\\n'
     -- IGNORE 1 LINES
     (
         id,
