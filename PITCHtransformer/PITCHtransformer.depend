@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1308232739 source:e:\projects\stockmarketdataimport\pitchtransformer\main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<stdio.h>
+	<fcntl.h>
+	<io.h>
+
