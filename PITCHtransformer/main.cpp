@@ -24,12 +24,15 @@ all records except 'A' and 'E':
 
 #include <stdio.h>
 #include <fcntl.h>
+#ifdef _WIN32
 #include <io.h>
+#endif
 
 using namespace std;
 
 // Decodes Base36 ID inot Integer
-unsigned long long order_id ( const char *line) { // 10 (12)
+unsigned long long order_id ( const char *line)   // 10 (12)
+{
     unsigned long long id = 0;
     char code;
     for ( int p = 10; p < 22; p++)
@@ -45,11 +48,13 @@ unsigned long long order_id ( const char *line) { // 10 (12)
 }
 
 // Extracts date value from the file name
-string get_date( const string file_name) {
+string get_date( const string file_name)
+{
     string s = file_name;
-    for (unsigned int p=0; p < s.length() ; p++ ) {
+    for (unsigned int p=0; p < s.length() ; p++ )
+    {
         if ( isdigit(s[p]) && isdigit(s[p+1]) && isdigit(s[p+2]) && isdigit(s[p+3]) && s[p+4]=='-'
-             && isdigit(s[p+5]) && isdigit(s[p+6]) && s[p+7]=='-' && isdigit(s[p+8]) && isdigit(s[p+9]))
+                && isdigit(s[p+5]) && isdigit(s[p+6]) && s[p+7]=='-' && isdigit(s[p+8]) && isdigit(s[p+9]))
         {
             return s.substr(p,10);
         }
@@ -60,13 +65,15 @@ string get_date( const string file_name) {
 int main (int argc, char *argv[])
 {
 
-    if ( argc < 2) {
+    if ( argc < 2)
+    {
         cerr << "Missing source data file name and output file name!";
         return 1;
     }
     char *file_name = argv[1];
     ifstream source (file_name, ios::in /* | ios::binary */);
-    if ( !source) {
+    if ( !source)
+    {
         cerr << printf( "File '%s' does not exist!", file_name);
         return 2;
     }
@@ -80,18 +87,21 @@ int main (int argc, char *argv[])
     char line[100];
     char msg_type;
     long long lineno = 1;
-    //cout.setf( ios::binary );
     cout.imbue(std::locale("C"));
+#ifdef _WIN32
     _setmode( fileno( stdout ), _O_BINARY ); // Work-arround to forse end-of-line = '\n'
+#endif
     cout << "id,time_stamp,minute,order_id,message_type,side_indicator,shares,symbol,price\n";
-    while( source.good() ) {
+    while( source.good() )
+    {
         source.getline(line,100);
         if ( source.eof() ) break;
         msg_type = line[9];
         if( msg_type!='A' && msg_type!='E' ) continue; // skip all excep 'A' and 'E' messages
 
         int msec = 0;
-        for ( int p=1; p < 9; p++) {
+        for ( int p=1; p < 9; p++)
+        {
             msec *= 10;
             char c = line[p];
             if (c != '0') msec += (c-48);
@@ -106,22 +116,29 @@ int main (int argc, char *argv[])
         int p; // position
         int sp; // starting position
         int fl; // field length
-        if ( msg_type=='A') {
+        if ( msg_type=='A')
+        {
             cout.put( line[22]);
             cout.put(',');
-            sp = 23; fl = 6;
+            sp = 23;
+            fl = 6;
             for ( p=sp; line[p]=='0' && p < sp+fl; p++ );
             if (p<sp+fl) cout.write( &line[p],fl-(p-sp)); // Shares
             cout.put(',');
-            for ( p=1; line[29+p]!=' '&&p<7;p++ );
-            if (p>6) p=6; cout.write( &line[29],p); // Symbol
+            for ( p=1; line[29+p]!=' '&&p<7; p++ );
+            if (p>6) p=6;
+            cout.write( &line[29],p); // Symbol
             cout.put(',');
-            sp = 35; fl = 10;
+            sp = 35;
+            fl = 10;
             for ( p=sp; line[p]=='0' && p < sp+fl; p++ );
             if (p<sp+fl) cout.write( &line[p],fl-(p-sp)); // Price
-        } else if ( msg_type=='E') {
+        }
+        else if ( msg_type=='E')
+        {
             cout.put(',');
-            sp = 22; fl = 6;
+            sp = 22;
+            fl = 6;
             for ( p=sp; line[p]=='0' && p < sp+fl; p++ );
             if (p<sp+fl) cout.write( &line[p],fl-(p-sp)); // Shares
             // cout.put(','); cout.put(','); // No symbol
