@@ -43,7 +43,10 @@ def getArgs():
     return args
 
 def getScriptAbsPath( scriptName ):
-    return os.path.join( os.path.dirname( __file__ ), scriptName );
+    if os.name == 'posix':
+	    return os.path.join( os.getcwd(), scriptName )
+    else:
+        return os.path.join( os.path.dirname( __file__ ), scriptName )
 
 def setMySqlCommand( args):
     """
@@ -158,16 +161,17 @@ def main():
     time_start = time.time()
     args = getArgs()
     setMySqlCommand( args)
-    if not os.path.exists( args.input ):
-        raise Exception("File %s doesn't exist!" % args.input)
-
     # data source:
     source = os.path.abspath( args.input)
+    if not os.path.exists( source ):
+        raise Exception("File %s doesn't exist!" % args.input)
+
     # transforms into CSV file:
     csv_source = source.strip()+'.csv'
 
     startTimer()
     trpitch_cmd = "%s \"%s\" >\"%s\"" % ( getScriptAbsPath('trpitch'), source, csv_source)
+    showMsg( "Executing %s\n" % trpitch_cmd )
     os.system( trpitch_cmd )
     showMsg( "\nData transformation completed in %.5f sec.\n" % getTimeSpent() )
 
